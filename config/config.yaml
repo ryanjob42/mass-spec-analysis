@@ -23,7 +23,7 @@ msconvert-directory: msconvert-out
 #############################################
 
 # The name of the mzMine batch file to use.
-mzmine-batch-file: batch.xml
+mzmine-batch-file: config/batch.xml
 
 # The name of the directory to put the results from mzMine into.
 mzmine-directory: mzmine-out

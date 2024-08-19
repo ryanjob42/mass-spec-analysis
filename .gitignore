@@ -1,4 +1,6 @@
 # Pipeline-Specific
+config/*
+!config/config.yaml
 raw-data/*
 !raw-data/README.md
 
