@@ -52,7 +52,7 @@ conda update --name mass-spec-analysis --all
 If you would like to create the environment from scratch, use the commands below.
 
 ```shell
-conda env create --name mass-spec-analysis --yes snakemake
+conda create -n mass-spec-analysis -c bioconda -c conda-forge -y snakemake
 conda activate mass-spec-analysis
 pip install snakemake-executor-plugin-slurm
 ```
