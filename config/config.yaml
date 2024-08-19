@@ -1,0 +1,29 @@
+#############################################
+# Input Data Settings
+#############################################
+
+# The name of the metadata file to check for.
+metadata-file: config/metadata.csv
+
+# The name of the directory that contains all the raw data
+# from the mass spectrometry system (i.e., the ".d" directories).
+raw-data-directoryr: raw-data
+
+
+#############################################
+# MSConvert Settings
+#############################################
+
+# The name of the directories to put the results from MSConvert into.
+msconvert-directory: msconvert-out
+
+
+#############################################
+# mzMine Settings
+#############################################
+
+# The name of the mzMine batch file to use.
+mzmine-batch-file: batch.xml
+
+# The name of the directory to put the results from mzMine into.
+mzmine-directory: mzmine-out
