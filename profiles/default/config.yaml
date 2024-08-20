@@ -21,7 +21,7 @@ default-resources:
   cpus_per_task: 1
   mem_mb_per_cpu: 500
   runtime: 15     # Runtime is measured in minutes.
-  slurm_extra: --exclusive=user
+  slurm_extra: '"--exclusive=user"'     # Notice both the single and double quotes.
 
 # Some rules need to override the default Slurm resources.
 set-resources:
@@ -31,8 +31,5 @@ set-resources:
 # Group the execution of some rules together so they are all submitted
 # as the same Slurm job. This will reduce the total number of jobs submitted
 # so it doesn't overload the scheduler.
-groups:
-  run_msconvert: msconvert_group
-
-group-components:
-  msconvert_group: 10
+groups: 'run_msconvert=msconvert_group'
+group-components: 'msconvert_group=10'

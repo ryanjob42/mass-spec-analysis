@@ -70,6 +70,14 @@ def build_msconvert_command(temp_dir: str, input_path: str, output_path: str) ->
     @param output_path The path to the mzML file to create.
     @return Returns the list of strings that make up the command to run.
     '''
+
+    print('RYANRYANRYAN!!!!!!!!!!!!!!!!!!!!!!')
+    print('tempdir: ' + temp_dir)
+    print('input_p: ' + input_path)
+    print('output:  ' + output_path)
+    print(f'-B "{temp_dir}:/mywineprefix"')
+    print('RYANRYANRYAN!!!!!!!!!!!!!!!!!!!!!!')
+
     # MSConvert requires that we split the output path into a folder and a file name.
     # If the output folder name is empty, use the current directory (i.e., ".").
     (output_folder, file_name) = os.path.split(output_path)
@@ -82,21 +90,21 @@ def build_msconvert_command(temp_dir: str, input_path: str, output_path: str) ->
     # MSConvert Program: https://proteowizard.sourceforge.io/tools/msconvert.html
     return [
         # We're using Singularity to run the container.
-        'singularity exec',
+        'singularity', 'exec',
 
         # Mount the temporary directory into the container as "/mywineprefix".
-        f'-B "{temp_dir}:/mywineprefix"',
+        '-B', f'{temp_dir}:/mywineprefix',
 
         # The Docker container for MSConvert.
         'docker://proteowizard/pwiz-skyline-i-agree-to-the-vendor-licenses',
 
         # Use their "mywine" script to run MSConvert.
-        'mywine msconvert',
+        'mywine', 'msconvert',
 
         # Point MSConvert to the input and output.
-        f'"{input_path}"',
-        f'--outdir "{output_folder}"',
-        f'--outfile "{file_name}"',
+        input_path,
+        '--outdir', output_folder,
+        '--outfile', file_name,
 
         # The output should be an mzML file.
         '--mzML',
@@ -112,7 +120,7 @@ def build_msconvert_command(temp_dir: str, input_path: str, output_path: str) ->
         # Note: for MSMS data, we could set the "msLevel" to "1-2". However, this only
         # speeds up the process by a couple of seconds and doesn't change the results,
         # so we will skip it to make the script easier to use.
-        '--filter "peakPicking vendor msLevel=1-"',
+        '--filter', 'peakPicking vendor msLevel=1-',
     ]
 
 if __name__ == '__main__':

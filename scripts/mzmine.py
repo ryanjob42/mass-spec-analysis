@@ -1,3 +1,4 @@
+import os
 import os.path
 import subprocess
 
@@ -46,9 +47,15 @@ def run_mzmine(batch_file: str, mzml_files: List[str], output_dir: str) -> None:
     @param mzml_files The list of mzML files to use as inputs to MZmine.
     @param output_dir The path to the directory where outputs need to be stored.
     '''
-    with TemporaryDirectory(dir='.') as temp_dir:
+    # Make sure the output directory exists first.
+    os.makedirs(output_dir, exist_ok=True)
+
+    with TemporaryDirectory(dir='.', delete=False) as temp_dir:
         input_file = create_input_file_list(temp_dir, mzml_files)
         command = build_mzml_command(batch_file, input_file, output_dir, temp_dir)
+        print('RYANRYAN!!!!!!!!!!!!!!!!!!!!!!')
+        print(command)
+        print('RYANRYAN!!!!!!!!!!!!!!!!!!!!!!')
         _ = subprocess.run(command)
 
 def create_input_file_list(temp_dir: str, mzml_files: List[str]) -> str:
@@ -60,6 +67,8 @@ def create_input_file_list(temp_dir: str, mzml_files: List[str]) -> str:
     input_file = os.path.join(temp_dir, 'inputs.txt')
     with open(input_file, 'w') as file:
         # Note: writelines doesn't add newlines to each line.
+        file.writelines(f + '\n' for f in mzml_files)
+    with open('/home/rjob/Documents/mass-spec-analysis/inputs.txt', 'w') as file:
         file.writelines(f + '\n' for f in mzml_files)
     return input_file
 
@@ -85,11 +94,11 @@ def build_mzml_command(batch_file: str, input_file: str, output_dir: str, temp_d
     # to speed up the process, as we have plenty.
     return [
         'mzmine',
-        f'--batch "{batch_file}"'
-        f'--input "{input_file}"',
-        f'--output "{output_dir}"',
-        f'--temp "{temp_dir}',
-        '--memory all',
+        '--batch', batch_file,
+        '--input', input_file,
+        '--output', output_arg,
+        '--temp', temp_dir,
+        '--memory', 'all'
     ]
 
 if __name__ == '__main__':

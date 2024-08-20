@@ -37,6 +37,6 @@ rule run_msconvert:
 rule run_mzmine:
     input:
         batch_file = config['mzmine-batch-file'],
-        mzml_files = rules.all.input.mzml_files
-    output: rules.all.input.mzmine_output
+        mzml_files = directory(rules.all.input.mzml_files)
+    output: directory(config['mzmine-directory'])
     script: 'scripts/mzmine.py'

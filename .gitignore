@@ -1,8 +1,11 @@
 # Pipeline-Specific
+.snakemake
 config/*
 !config/config.yaml
 raw-data/*
 !raw-data/README.md
+msconvert-out
+mzmine-out
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
