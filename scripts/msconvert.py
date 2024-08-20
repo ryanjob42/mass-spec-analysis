@@ -70,14 +70,6 @@ def build_msconvert_command(temp_dir: str, input_path: str, output_path: str) ->
     @param output_path The path to the mzML file to create.
     @return Returns the list of strings that make up the command to run.
     '''
-
-    print('RYANRYANRYAN!!!!!!!!!!!!!!!!!!!!!!')
-    print('tempdir: ' + temp_dir)
-    print('input_p: ' + input_path)
-    print('output:  ' + output_path)
-    print(f'-B "{temp_dir}:/mywineprefix"')
-    print('RYANRYANRYAN!!!!!!!!!!!!!!!!!!!!!!')
-
     # MSConvert requires that we split the output path into a folder and a file name.
     # If the output folder name is empty, use the current directory (i.e., ".").
     (output_folder, file_name) = os.path.split(output_path)

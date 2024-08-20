@@ -50,12 +50,9 @@ def run_mzmine(batch_file: str, mzml_files: List[str], output_dir: str) -> None:
     # Make sure the output directory exists first.
     os.makedirs(output_dir, exist_ok=True)
 
-    with TemporaryDirectory(dir='.', delete=False) as temp_dir:
+    with TemporaryDirectory(dir='.') as temp_dir:
         input_file = create_input_file_list(temp_dir, mzml_files)
         command = build_mzml_command(batch_file, input_file, output_dir, temp_dir)
-        print('RYANRYAN!!!!!!!!!!!!!!!!!!!!!!')
-        print(command)
-        print('RYANRYAN!!!!!!!!!!!!!!!!!!!!!!')
         _ = subprocess.run(command)
 
 def create_input_file_list(temp_dir: str, mzml_files: List[str]) -> str:
