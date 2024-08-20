@@ -1,5 +1,5 @@
+import logging
 import os
-import os.path
 import subprocess
 
 from argparse import ArgumentParser
@@ -12,6 +12,10 @@ from typing import List
 # and either runs the "direct_main" or the "snakemake_main" function.
 # These functions grab the input and output paths, then use the "run_mzmine"
 # function to actually run MZmine.
+
+# If you're experiencing issues with this script, uncomment the line below
+# to turn on debug logging.
+#logging.basicConfig(level=logging.DEBUG)
 
 def direct_main() -> None:
     '''Runs MZmine from data provided via command-line arguments.
@@ -47,13 +51,22 @@ def run_mzmine(batch_file: str, mzml_files: List[str], output_dir: str) -> None:
     @param mzml_files The list of mzML files to use as inputs to MZmine.
     @param output_dir The path to the directory where outputs need to be stored.
     '''
+    logging.debug('mzMine batch file: %s', batch_file)
+    logging.debug('Input mzML files: %s', ', '.join(mzml_files))
+    logging.debug('mzMine output directory: %s', output_dir)
+
     # Make sure the output directory exists first.
     os.makedirs(output_dir, exist_ok=True)
 
     with TemporaryDirectory(dir='.') as temp_dir:
         input_file = create_input_file_list(temp_dir, mzml_files)
         command = build_mzml_command(batch_file, input_file, output_dir, temp_dir)
-        _ = subprocess.run(command)
+        logging.debug('mzMine command: %s', ', '.join(command))
+
+        # If mzMine returns an error code, the "check=True" argument here
+        # will cause this script to throw an exception, letting Snakemake
+        # know that it failed.
+        _ = subprocess.run(command, check=True)
 
 def create_input_file_list(temp_dir: str, mzml_files: List[str]) -> str:
     '''Creates a file that lists all the mzML files to input into MZmine.
@@ -64,8 +77,6 @@ def create_input_file_list(temp_dir: str, mzml_files: List[str]) -> str:
     input_file = os.path.join(temp_dir, 'inputs.txt')
     with open(input_file, 'w') as file:
         # Note: writelines doesn't add newlines to each line.
-        file.writelines(f + '\n' for f in mzml_files)
-    with open('/home/rjob/Documents/mass-spec-analysis/inputs.txt', 'w') as file:
         file.writelines(f + '\n' for f in mzml_files)
     return input_file
 
@@ -102,6 +113,8 @@ if __name__ == '__main__':
     # If the "snakemake" variable is defined, assume this is being run by Snakemake.
     # Otherwise, assume this is being run directly.
     if 'snakemake' in locals():
+        logging.debug('This script was run by Snakemake.')
         snakemake_main()
     else:
+        logging.debug('This script was not run by Snakemake.')
         direct_main()

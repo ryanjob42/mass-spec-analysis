@@ -1,3 +1,4 @@
+import logging
 import os.path
 import subprocess
 
@@ -26,6 +27,10 @@ from typing import List
 # Thus, this script should only be called for a single conversion.
 # However, you can run this script many times in parallel, which effectively
 # works around the entire issue.
+
+# If you're experiencing issues with this script, uncomment the line below
+# to turn on debug logging.
+#logging.basicConfig(level=logging.DEBUG)
 
 def direct_main() -> None:
     '''Runs MSConvert from data provided via command-line arguments.
@@ -59,9 +64,17 @@ def run_msconvert(input_path: str, output_path: str) -> None:
     # Python will automatically delete it once it exits the "with" block.
     # We create it in the current directory instead of the default temp directory
     # so it doesn't run out of room and cause this script to crash.
+    logging.debug('Input path for MSConvert: %s', input_path)
+    logging.debug('Output path for MSConvert: %s', output_path)
+
     with TemporaryDirectory(dir='.') as temp_dir:
         command = build_msconvert_command(temp_dir, input_path, output_path)
-        _ = subprocess.run(command)
+        logging.debug('MSConvert command: %s', ', '.join(command))
+
+        # If MSConvert returns an error code, the "check=True" argument here
+        # will cause this script to throw an exception, letting Snakemake
+        # know that it failed.
+        _ = subprocess.run(command, check=True)
 
 def build_msconvert_command(temp_dir: str, input_path: str, output_path: str) -> List[str]:
     '''Builds the command needed to run MSConvert.
@@ -119,6 +132,8 @@ if __name__ == '__main__':
     # If the "snakemake" variable is defined, assume this is being run by Snakemake.
     # Otherwise, assume this is being run directly.
     if 'snakemake' in locals():
+        logging.debug('This script was run by Snakemake.')
         snakemake_main()
     else:
+        logging.debug('This script was not run by Snakemake.')
         direct_main()
