@@ -12,11 +12,25 @@ retries: 2
 executor: slurm
 jobs: unlimited
 
+# Set the number of threads to use per job.
+# For mzMine, I found that using all of the physical cores (i.e., no hyperthreading)
+# provides the best performance. That is, if your system has 128 hyperthreaded
+# cores, use 64 threads. To find the number you should use, run `lscpu` and
+# take the number of "CPU(s)" available and divide by the "Thread(s) per core".
+# When grouping jobs, this is part of how Snakemake decides how many CPUs
+# to request for the entire group.
+# Note: while the Slurm executor plugin's documentation says it prefers this,
+# it doesn't seem to work correctly, so set the "resources.cpus_per_task" as well.
+set-threads:
+  all: 1
+  run_msconvert: 1
+  run_mzmine: 64
+
 # These are the default resources for Slurm to allocate per rule execution.
 # Note: when tasks are grouped together, the resources they require will be
 # added together as well.
 default-resources:
-  partition: short-cpu
+  slurm_partition: short-cpu
   tasks: 1
   cpus_per_task: 1
   mem_mb_per_cpu: 500
@@ -24,12 +38,21 @@ default-resources:
   slurm_extra: '"--exclusive=user"'     # Notice both the single and double quotes.
 
 # Some rules need to override the default Slurm resources.
+# Per the comment on "set-threads", if the login node has fewer cores than
+# the compute node and we want to use more threads than the login node has,
+# we need to set "cpus_per_task" to the number of threads we actually want.
 set-resources:
   run_mzmine:
-    cpus_per_task: 126
+    slurm_partition: 'day-long-cpu'
+    cpus_per_task: 64       # Slipstick and Riviera compute nodes have 64 physical cores.
+    mem_mb_per_cpu: 3500    # About 500,000 MB / 128 cpus. Must use max CPU count with "--exclusive".
+    runtime: 1440           # 1440 minutes = 1 day.
+    slurm_extra: '"--exclusive"'    # Notice both the single and double quotes.
 
 # Group the execution of some rules together so they are all submitted
 # as the same Slurm job. This will reduce the total number of jobs submitted
 # so it doesn't overload the scheduler.
+# Note: Snakemake will use the threads per "set-threads" to determine how many
+# threads are allocated, not "resources.cpus_per_task" unfortunately.
 groups: 'run_msconvert=msconvert_group'
 group-components: 'msconvert_group=10'

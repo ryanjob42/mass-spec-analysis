@@ -69,7 +69,7 @@ def run_msconvert(input_path: str, output_path: str) -> None:
 
     with TemporaryDirectory(dir='.') as temp_dir:
         command = build_msconvert_command(temp_dir, input_path, output_path)
-        logging.debug('MSConvert command: %s', ', '.join(command))
+        logging.debug('MSConvert command: %s', ' '.join(command))
 
         # If MSConvert returns an error code, the "check=True" argument here
         # will cause this script to throw an exception, letting Snakemake

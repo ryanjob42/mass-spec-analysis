@@ -2,9 +2,22 @@
 A Snakemake workflow for analyzing mass spectrometry data for John Belisle's lab.
 
 ## Requirements
+These are the requirements for running this workflow.
+
+### Singularity
 This workflow requires Singularity.
 This is already installed on our HPC clusters at CSU.
 
+TODO: add instructions for pulling the necessary container.
+```shell
+singularity TODO
+```
+
+If you are running on a different cluster that has Apptainer instead,
+you can change the commands inside the Python scripts (found in the `scripts` directory)
+to use that instead.
+
+### Python and our Conda Environment
 This workflow requires you to install Python with Conda.
 We recommend using Miniconda, as it is easy to use from our HPC systems.
 From the link below, follow the commands under the "Linux" tab to install it.
@@ -18,6 +31,33 @@ see [Updating the Conda Environment](#updating-the-conda-environment) below.
 
 ```shell
 conda env create -f environment.yml
+```
+
+### mzMine
+TODO: add instructions for downloading the portable mzMine.
+
+First-time install:
+```shell
+mkdir -p ~/mzmine
+cd ~/mzmine
+wget TODO
+unzip *.zip
+chmod +x bin/mzmine
+```
+
+Add the following to the end of your .bashrc file.
+TODO: can I add it to the above instructions?
+```
+export PATH="$HOME/bin/mzmine:$PATH"
+```
+
+Updating:
+```shell
+cd ~/mzmine
+rm -rf ./*
+wget TODO
+unzip *.zip
+chmod +x bin/mzmine
 ```
 
 ## Usage

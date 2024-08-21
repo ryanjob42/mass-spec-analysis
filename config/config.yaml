@@ -15,7 +15,7 @@ raw-data-directory: raw-data
 #############################################
 
 # The name of the directories to put the results from MSConvert into.
-msconvert-directory: msconvert-out
+msconvert-output-directory: msconvert-out
 
 
 #############################################
@@ -25,5 +25,8 @@ msconvert-directory: msconvert-out
 # The name of the mzMine batch file to use.
 mzmine-batch-file: config/batch.xml
 
+# The name of the directory where spectral libraries are stored.
+mzmine-spectral-libraries-directory: spectral-libraries
+
 # The name of the directory to put the results from mzMine into.
-mzmine-directory: mzmine-out
+mzmine-output-directory: mzmine-out
