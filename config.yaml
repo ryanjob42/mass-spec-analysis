@@ -1,0 +1,74 @@
+# This file contains settings to configure the workflow.
+# All file paths are relative to the "Snakemake" file for the workflow.
+# Some common ones you may need to change are:
+#   metadata-file
+#   mzmine-batch-file
+#   mzmine-spectral-libraries-import
+
+#############################################
+# Input Data Settings
+#############################################
+
+# The path to the metadata file to check for.
+# If this file does not exist, the workflow will not run.
+metadata-file: metadata.csv
+
+# The path to the directory that contains all the raw data
+# from the mass spectrometry system (i.e., the ".d" directories).
+raw-data-directory: raw-data
+
+
+#############################################
+# MSConvert Settings
+#############################################
+
+# The path to the directory that MSConvert will write the "mzML" files to.
+# This directory doesn't need to exist, as Snakemake will create it if necessary.
+# If you've converted some files previously, if they are found in this folder,
+# the workflow can detect this and re-use the files it finds.
+msconvert-output-directory: msconvert-out
+
+
+#############################################
+# mzMine Settings
+#############################################
+
+# The path to the mzMine batch file to use.
+mzmine-batch-file: batch.xml
+
+# The mzML files to analyze.
+# The files will come from the MSConvert output directory and will
+# override the mzML files selected in the data import step of the
+# batch file. Note: don't delete that step, as it may cause issues.
+#
+# If you want to use all of the mzML files, use the following:
+# mzmine-files-to-analyze: All
+#
+# If you only want to use the pool QC and blanks (i.e., exclude the
+# experimental samples), use the following:
+# mzmine-files-to-analyze: QC
+mzmine-files-to-analyze: All
+
+# The path to the directory where spectral libraries are stored.
+# If you're not using any, this will be ignored.
+mzmine-spectral-libraries-directory: spectral-libraries
+
+# The spectral library files to import.
+# These files must all be inside the spectral libraries directory above.
+#
+# If you want all of them in the directory, use the following:
+# mzmine-spectral-libraries-import: All
+#
+# If you don't want any, use the following:
+# mzmine-spectral-libraries-import: None
+#
+# If you want to import some, specify them as follows.
+# mzmine-spectral-libraries-import:
+# - A-library-File.msp
+# - Another-file.msp
+mzmine-spectral-libraries-import:
+- MoNA-export-All_Spectra.msp
+- Another-file.msp
+
+# The name of the directory to put the results from mzMine into.
+mzmine-output-directory: mzmine-out

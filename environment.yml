@@ -135,4 +135,3 @@ dependencies:
   - pip:
       - snakemake-executor-plugin-slurm==0.9.0
       - snakemake-executor-plugin-slurm-jobstep==0.2.1
-prefix: /home/rjob/miniconda3/envs/mass-spec-analysis

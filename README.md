@@ -1,105 +1,42 @@
 # Mass Spectrometry Analysis
 A Snakemake workflow for analyzing mass spectrometry data for John Belisle's lab.
 
-## Requirements
-These are the requirements for running this workflow.
-
-### Singularity
-This workflow requires Singularity.
-This is already installed on our HPC clusters at CSU.
-
-TODO: add instructions for pulling the necessary container.
-```shell
-singularity TODO
-```
-
-If you are running on a different cluster that has Apptainer instead,
-you can change the commands inside the Python scripts (found in the `scripts` directory)
-to use that instead.
-
-### Python and our Conda Environment
-This workflow requires you to install Python with Conda.
-We recommend using Miniconda, as it is easy to use from our HPC systems.
-From the link below, follow the commands under the "Linux" tab to install it.
-
-https://docs.anaconda.com/miniconda/#quick-command-line-install
-
-There is a Conda virtual environment already set up for this workflow.
-You can install it using the command below.
-If this does not work, or if you need updated software,
-see [Updating the Conda Environment](#updating-the-conda-environment) below.
-
-```shell
-conda env create -f environment.yml
-```
-
-### mzMine
-TODO: add instructions for downloading the portable mzMine.
-
-First-time install:
-```shell
-mkdir -p ~/mzmine
-cd ~/mzmine
-wget TODO
-unzip *.zip
-chmod +x bin/mzmine
-```
-
-Add the following to the end of your .bashrc file.
-TODO: can I add it to the above instructions?
-```
-export PATH="$HOME/bin/mzmine:$PATH"
-```
-
-Updating:
-```shell
-cd ~/mzmine
-rm -rf ./*
-wget TODO
-unzip *.zip
-chmod +x bin/mzmine
-```
+## Setup
+There is a one-time setup process for this workflow.
+See the [Automatic First Time Setup](./docs/AutomaticFirstTimeSetup.md) instructions for more details.
 
 ## Usage
-These are the steps to use for running this pipeline.
+There are four important pieces to using this workflow.
 
-1. From the command line, download a copy of this workflow using the command below, replacing `my-project` with the name of your project (this will be the name of the folder created).
-   1. `git clone https://github.com/ryanjob42/mass-spec-analysis.git my-project`
-2. Upload your metadata file and the mzMine batch file to this folder.
-   1. You can use FileZilla, or commands like `scp` or `rsync` to do this.
-3. Upload your raw data files (the ".d" folders) to the "raw-data" folder here.
-   1. If these are on your local computer, you can use FileZilla, or command like `scp` or `rsync`.
-   2. If they're on the Berre server, you can use the command below, replacing `source-folder` with the name of the folder that contains the ".d" folders.
-      1. `rsync -r berre:/raid/belisle/source-folder raw-data`
-4. Update the `config/config.yaml` file as follows:
-   1. `metadata-file` should be the name of your metadata file. If it's in a folder, include the folders as well.
-   2. `mzmine-batch-file` should be the name of your mzMine batch file. If it's in a folder, include the folders as well.
-   3. `raw-data-folder` should be the name of the folder that contains all the raw data (the ".d" folders).
-5. Run `start-workflow.sh` to start the workflow.
-   1. Note: if you changed the name of the Conda environment, you will need to update it in the script.
+First, you will want to update the `config.yaml` configuration file.
+This is a text file that you can use to tell the workflow what you want to do.
+The file is commented with some instructions, including a list of settings that are commonly changed.
+These include:
 
-## Updating the Conda Environment
-The Conda environment file provided here lists the exact version numbers of the Python packages to use.
-If there are updates to Snakemake, or any of the other packages, this environment file will not use them.
+- `metadata-file`: The path to the metadata file for your experiment.
+- `mzmine-batch-file`: The path to the batch file you are using for running mzMine.
+- `mzmine-spectral-libraries-import`: Indicate which spectral libraries to use when running mzMine.
 
-If you would like to update an existing Conda environment, use the command below.
-Note: if you changed the name of the environment, you will need to update it in this command.
+Second, upload your metadata file.
+By default, it is expected to be named `metadata.csv` and put in the main folder for the workflow (the same place where the "Snakemake" folder is).
+If you would like to change the name or location, you can change the `metadata-file` setting in the configuration file.
 
-```shell
-conda update --name mass-spec-analysis --all
-```
+Third, upload your raw mass spectrometry data to the raw data directory.
+For Agilent systems, this will be your ".d" folders.
+By default, this is the `raw-data` folder here, but you can configure it with the `raw-data-directory` setting in the configuration file.
+When the workflow runs, it will automatically convert everything there into ".mzML" files.
 
-If you would like to create the environment from scratch, use the commands below.
+Fourth, upload your mzMine batch file.
+You can create this on any other system with mzMine installed.
+By default, it's expected to be named `batch.xml` and put in the main folder for the workflow (the same place where the "Snakemake" folder is).
+If you would like to change the name or location, you can change the `mzmine-batch-file` setting in the configuration file.
 
-```shell
-conda create -n mass-spec-analysis -c bioconda -c conda-forge -y snakemake
-conda activate mass-spec-analysis
-pip install snakemake-executor-plugin-slurm
-```
+Fifth, upload your spectral libary files to the spectral libraries directory.
+These will either be ".json" or ".mgf" files.
+By default, this is the `spectral-libraries` folder here, but you can configure it with the `mzmine-spectral-libraries-directory` setting in the configuration file.
+Unlike the raw data folder, you can manually specify (in the configuraiton file) which libraries, if any, to import.
 
-After updating (or re-creating) the conda environment, you can update the environment file as follows.
-Note: if you changed the name of the environment, you will need to update it in this command.
-
-```shell
-conda env export --name mass-spec-analysis --file environment.yml
-```
+Finally, once everything is done, you can simply run the `start-workflow.sh` script.
+This contains the couple of commands needed to run Snakemake.
+While it's running, you must leave the terminal window open.
+The workflow typically takes about 10-15 minutes to complete.
