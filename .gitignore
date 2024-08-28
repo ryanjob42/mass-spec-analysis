@@ -6,9 +6,6 @@ mzmine-out
 
 # For the directories with input files, only track
 # specific files. Don't track anything else.
-config/*
-!config/config.yaml
-
 raw-data/*
 !raw-data/README.md
 

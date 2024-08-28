@@ -17,7 +17,7 @@ MZMINE_OUT_DIR = config['mzmine-output-directory']
 
 # We only want the mzMine rules to require a spectral libraries list file
 # if the user specified that they want spectral libraries.
-USE_SPECTRAL_LIBS = spectral_lib_list != 'None'
+USE_SPECTRAL_LIBS = str(SPECTRAL_LIBS_LIST).lower() != 'none'
 
 # Make sure the raw data directory exists and has at least one ".d" file.
 # This prevents issues in the event that none are found.
@@ -55,7 +55,7 @@ rule run_msconvert:
 # that mzMine will import. These lists are written to temporary .txt files.
 rule prepare_mzmine_inputs:
     input:
-        mzml_files = rules.all.input.mzml_files
+        mzml_files = rules.all.input.mzml_files,
         spectral_libs_dir = branch(USE_SPECTRAL_LIBS, SPECTRAL_LIBS_DIR)
     params:
         mzml_import_type = MZMINE_IMPORT_TYPE,

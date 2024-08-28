@@ -17,10 +17,10 @@ def snakemake_main() -> None:
 
 def get_mzml_list() -> List[str]:
     '''Returns a list of mzML files that mzMine should import.'''
-    # "snakemake.inputs.mzml_files" contains a list of all mzML files available.
+    # "snakemake.input.mzml_files" contains a list of all mzML files available.
     # "snakemake.params.mzml_import_type" determines if we're importing all of them
     # or only the pool QC and blanks.
-    mzml_list = snakemake.inputs.mzml_files
+    mzml_list = snakemake.input.mzml_files
     import_type = snakemake.params.mzml_import_type
 
     if import_type.lower() == 'all':
@@ -52,7 +52,7 @@ def get_spec_lib_list() -> Optional[List[str]]:
     If an empty list is returned, create an empty file.
     If a non-empty list is returned, create a file with each element on its own line.
     '''
-    spec_lib_dir = snakemake.inputs.spectral_libs_dir
+    spec_lib_dir = snakemake.input.spectral_libs_dir
     import_type = snakemake.params.spectral_libs_list
 
     # The import type can either be "None", "All" or a list of strings.

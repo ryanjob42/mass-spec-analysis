@@ -66,9 +66,7 @@ mzmine-spectral-libraries-directory: spectral-libraries
 # mzmine-spectral-libraries-import:
 # - A-library-File.msp
 # - Another-file.msp
-mzmine-spectral-libraries-import:
-- MoNA-export-All_Spectra.msp
-- Another-file.msp
+mzmine-spectral-libraries-import: All
 
 # The name of the directory to put the results from mzMine into.
 mzmine-output-directory: mzmine-out

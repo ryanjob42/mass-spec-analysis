@@ -42,11 +42,14 @@ default-resources:
 # the compute node and we want to use more threads than the login node has,
 # we need to set "cpus_per_task" to the number of threads we actually want.
 set-resources:
+  prepare_mzmine_inputs:
+    slurm_partition: 'day-long-cpu'
+    slurm_extra: '"--exclusive"'    # Notice both the single and double quotes.
   run_mzmine:
     slurm_partition: 'day-long-cpu'
     cpus_per_task: 64       # Slipstick and Riviera compute nodes have 64 physical cores.
     mem_mb_per_cpu: 3500    # About 500,000 MB / 128 cpus. Must use max CPU count with "--exclusive".
-    runtime: 1440           # 1440 minutes = 1 day.
+    runtime: 1400           # 1440 minutes = 1 day. Request slightly less.
     slurm_extra: '"--exclusive"'    # Notice both the single and double quotes.
 
 # Group the execution of some rules together so they are all submitted
@@ -54,5 +57,10 @@ set-resources:
 # so it doesn't overload the scheduler.
 # Note: Snakemake will use the threads per "set-threads" to determine how many
 # threads are allocated, not "resources.cpus_per_task" unfortunately.
-groups: 'run_msconvert=msconvert_group'
-group-components: 'msconvert_group=10'
+groups:
+- run_msconvert=msconvert_group
+- prepare_mzmine_inputs=mzmine_group
+- run_mzmine=mzmine_group
+
+group-components:
+- msconvert_group=10
