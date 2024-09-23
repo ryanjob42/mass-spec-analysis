@@ -18,7 +18,7 @@ These are the instructions for running the automatic setup script.
 wget -O - https://raw.githubusercontent.com/ryanjob42/mass-spec-analysis/main/scripts/automatic-setup.sh | bash
 ```
 
-If the script ran successfully, you should see something like this in the output:
+If the script ran successfully, you should see something like this at the end of the output:
 
 ```
 Automatic installation complete.
@@ -27,7 +27,10 @@ After that, you will still need to manually log in to mzMine.
 Please continue following the instructions in the setup document.
 ```
 
-Once you see that, log off of Slipstick, then continue the instructions below.
+Once you see that message:
+1. Log off of Slipstick.
+2. Log back in to Slipstick.
+3. Follow the "Log In to mzMine" instructions below.
 
 ## Log In to mzMine
 As of August 2024, the command-line way to log in to mzMine does not work.
