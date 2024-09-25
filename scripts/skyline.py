@@ -13,7 +13,7 @@ from typing import List, Union
 
 # If you're experiencing issues with this script, uncomment the line below
 # to turn on debug logging.
-#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 def direct_main() -> None:
     '''Runs Skyline from data provided via command-line arguments.
@@ -38,12 +38,11 @@ def direct_main() -> None:
     parser.add_argument('report_path', help='The path to output the CSV report to.')
 
     args = parser.parse_args()
-    is_centroided = (args.data_type.lower() == 'mzml')
     qc_only = (args.sample_type.lower() == 'qc')
     run_skyline(
         args.transition_list,
         args.input_dir,
-        is_centroided,
+        args.is_centroided,
         qc_only,
         args.thread_count,
         args.doc_path,
@@ -124,14 +123,14 @@ def build_skyline_command(temp_dir: str, transition_list: str, input_dir: str, i
         'mywine', 'SkylineCMD',
 
         # Tell Skyline to begin a new document, overwriting a previous one if needed.
-        f'--new={report_path}', '--overwrite'
+        f'--new={doc_path}', '--overwrite',
 
         # Set the transition settings.
         '--full-scan-precursor-isotopes=Count',
         '--full-scan-precursor-threshold=1',
         '--full-scan-rt-filter=none',
         '--integrate-all=True',
-        '--tran-product-ion-types="y,p"',
+        '--tran-product-ion-types=y,p',
         '--instrument-max-mz=1700',
 
         # Import the transition list and desired input files.
@@ -141,10 +140,10 @@ def build_skyline_command(temp_dir: str, transition_list: str, input_dir: str, i
         # Use the desired number of threads for importing data.
         # Note: as of September 2024, using multiple processes from the Singularity
         # container causes the program to stall indefinitely, so we won't use them.
-        f'--import-threads={str(thread_count)}'
+        f'--import-threads={str(thread_count)}',
 
         # Specify the output report.
-        '--report-name="Molecule Transition Results"',
+        '--report-name=Molecule Transition Results',
         f'--report-file={report_path}',
         '--report-format=csv',
     ]

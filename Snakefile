@@ -56,9 +56,9 @@ rule all:
         ),
 
         # Require the results directory from running mzMine.
-        mzmine_output = MZMINE_OUT_DIR
+        mzmine_output = MZMINE_OUT_DIR,
 
-        # If desired, reuqire the Skyline analysis for centroided (mzML)
+        # If desired, require the Skyline analysis for centroided data (mzml files)
         # and TOF profile data (raw ".d" folders).
         skyline_centroided_report = branch(SKYLINE_PROCESS_MZML, f'{SKYLINE_OUT_DIR}/centroided_report.csv'),
         skyline_tof_profile_report = branch(SKYLINE_PROCESS_RAW, f'{SKYLINE_OUT_DIR}/tof_profile_report.csv')
@@ -117,8 +117,8 @@ rule prepare_transition_list:
 
 rule skyline_centroided_analysis:
     input:
-        transition_list = rules.prepare_transition_list.output,
-        mzml_files = rules.all.output.mzml_files
+        transition_list = f'{SKYLINE_OUT_DIR}/transition_list.csv',
+        mzml_files = rules.all.input.mzml_files
     params:
         input_dir = MZML_OUT_DIR,
         is_centroided = True,
@@ -131,14 +131,14 @@ rule skyline_centroided_analysis:
 
 rule skyline_tof_profile_analysis:
     input:
-        transition_list = rules.prepare_transition_list.output,
-        mzml_files = rules.all.output.mzml_files
+        transition_list = f'{SKYLINE_OUT_DIR}/transition_list.csv',
+        raw_data_folder = RAW_DATA_DIR
     params:
-        input_dir = MZML_OUT_DIR,
+        input_dir = RAW_DATA_DIR,
         is_centroided = False,
         qc_only = (SKYLINE_IMPORT_TYPE.lower() == 'qc'),
         skyline_threads = SKYLINE_THREAD_COUNT
     output:
         skyline_doc = f'{SKYLINE_OUT_DIR}/tof_profile_analysis.sky',
         report_file = f'{SKYLINE_OUT_DIR}/tof_profile_report.csv'
-    script: 'scripts/skyline.py
+    script: 'scripts/skyline.py'

@@ -100,7 +100,8 @@ def build_transition_list(input_path: str, output_path: str) -> None:
     transition_list['Molecule List Name'] = ''
 
     # Output the transition list to the desired CSV file.
-    transition_list.to_csv(output_path)
+    # Do not include the index, as it causes Skyline to fail.
+    transition_list.to_csv(output_path, index=False)
 
 def round_mz_values(mz_value: float) -> str:
     '''Converts a precursor m/z value to a string rounded to 4 decimal places.'''
