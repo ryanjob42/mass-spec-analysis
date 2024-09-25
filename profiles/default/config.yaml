@@ -24,7 +24,10 @@ jobs: unlimited
 set-threads:
   all: 1
   run_msconvert: 1
+  prepare_mzmine_inputs: 1
   run_mzmine: 64
+  prepare_transition_list: 1
+  skyline_centroided_analysis: 4
 
 # These are the default resources for Slurm to allocate per rule execution.
 # Note: when tasks are grouped together, the resources they require will be
@@ -51,6 +54,16 @@ set-resources:
     mem_mb_per_cpu: 3500    # About 500,000 MB / 128 cpus. Must use max CPU count with "--exclusive".
     runtime: 1400           # 1440 minutes = 1 day. Request slightly less.
     slurm_extra: '"--exclusive"'    # Notice both the single and double quotes.
+  skyline_centroided_analysis:
+    slurm_partition: 'day-long-cpu'
+    cpus_per_task: 4
+    mem_mb_per_cpu: 3500
+    slurm_extra: '"--exclusive"'
+  skyline_tof_profile_analysis:
+    slurm_partition: 'day-long-cpu'
+    cpus_per_task: 4
+    mem_mb_per_cpu: 3500
+    slurm_extra: '"--exclusive"'
 
 # Group the execution of some rules together so they are all submitted
 # as the same Slurm job. This will reduce the total number of jobs submitted
