@@ -70,3 +70,40 @@ mzmine-spectral-libraries-import: All
 
 # The name of the directory to put the results from mzMine into.
 mzmine-output-directory: mzmine-out
+
+
+#############################################
+# Skyline Settings
+#############################################
+
+# The directory where Skyline will output all of its results.
+# This will include where the transition list and Skyline document
+# get created.
+skyline-output-directory: skyline-out
+
+# The number of threads that Skyline should use for processing
+# the imported data. Note: no matter what this is set to, an entire
+# node will be allocated. After some performance testing, it was found
+# that using a lower number of threads, but using the full node, produces
+# results faster than trying to use all available threads.
+skyline-thread-count: 4
+
+# Indicates if Skyline should be run using the raw ".d" folders or not.
+# Use "True" if it should be run, and "False" if not.
+# The raw ".d" folders to analyze will come from the "raw-data-directory" setting.
+skyline-process-raw-data: False
+
+# Indicates if Skyline should be run using the ".mzML" files or not.
+# Use "True" if it should be run, and "False" if not.
+# The ".mzML" files to analyze will come from the "msconvert-output-directory" setting.
+skyline-process-mzml-files: False
+
+# Indicates which types of files Skyline should analyze.
+#
+# If you want to use all of the files files, use the following:
+# skyline-files-to-analyze: All
+#
+# If you only want to use the pool QC and blanks (i.e., exclude the
+# experimental samples), use the following:
+# skyline-files-to-analyze: QC
+skyline-files-to-analyze: All

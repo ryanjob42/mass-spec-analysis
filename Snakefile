@@ -1,6 +1,10 @@
 import glob
 import os.path
 
+##############################################
+# Configuration
+##############################################
+
 # Read the configuration file and create some shorthand variables
 # to make it easier to use, and so there is only one place to make
 # changes if the names of the configurations change.
@@ -14,6 +18,11 @@ MZMINE_IMPORT_TYPE = config['mzmine-files-to-analyze']
 SPECTRAL_LIBS_DIR = config['mzmine-spectral-libraries-directory']
 SPECTRAL_LIBS_LIST = config['mzmine-spectral-libraries-import']
 MZMINE_OUT_DIR = config['mzmine-output-directory']
+SKYLINE_OUT_DIR = config['skyline-output-directory']
+SKYLINE_THREAD_COUNT = config['skyline-thread-count']
+SKYLINE_PROCESS_RAW = config['skyline-process-raw-data']
+SKYLINE_PROCESS_MZML = config['skyline-process-mzml-files']
+SKYLINE_IMPORT_TYPE = config['skyline-files-to-analyze']
 
 # We only want the mzMine rules to require a spectral libraries list file
 # if the user specified that they want spectral libraries.
@@ -25,6 +34,11 @@ if not glob.glob(os.path.join(RAW_DATA_DIR, '*.d')):
     print(f'No raw data was found in the raw data folder: {RAW_DATA_DIR}')
     print('Please double check you uploaded them and that the configuration file is correct.')
     exit(1)
+
+
+##############################################
+# Top-Level Rule
+##############################################
 
 # This rule must come first, as it ensures the metadata file exists
 # and makes sure MSConvert and mzMine are run as needed.
@@ -44,12 +58,27 @@ rule all:
         # Require the results directory from running mzMine.
         mzmine_output = MZMINE_OUT_DIR
 
+        # If desired, reuqire the Skyline analysis for centroided (mzML)
+        # and TOF profile data (raw ".d" folders).
+        skyline_centroided_report = branch(SKYLINE_PROCESS_MZML, f'{SKYLINE_OUT_DIR}/centroided_report.csv'),
+        skyline_tof_profile_report = branch(SKYLINE_PROCESS_RAW, f'{SKYLINE_OUT_DIR}/tof_profile_report.csv')
+
+
+##############################################
+# MSConvert
+##############################################
+
 # This rule runs MSConvert on a single ".d" directory to produce
 # a single ".mzML" file.
 rule run_msconvert:
     input: f'{RAW_DATA_DIR}/{{experiment}}.d'
     output: f'{MZML_OUT_DIR}/{{experiment}}.mzML'
     script: 'scripts/msconvert.py'
+
+
+##############################################
+# mzMine
+##############################################
 
 # This rule prepares a list of mzML files and (optionally) a list of spectral library files
 # that mzMine will import. These lists are written to temporary .txt files.
@@ -75,3 +104,41 @@ rule run_mzmine:
         spectral_lib_list = rules.prepare_mzmine_inputs.output.spectral_libs_list
     output: directory(MZMINE_OUT_DIR)
     script: 'scripts/mzmine.py'
+
+
+##############################################
+# Skyline
+##############################################
+
+rule prepare_transition_list:
+    input: MZMINE_OUT_DIR
+    output: f'{SKYLINE_OUT_DIR}/transition_list.csv'
+    script: 'scripts/prepare_transition_list.py'
+
+rule skyline_centroided_analysis:
+    input:
+        transition_list = rules.prepare_transition_list.output,
+        mzml_files = rules.all.output.mzml_files
+    params:
+        input_dir = MZML_OUT_DIR,
+        is_centroided = True,
+        qc_only = (SKYLINE_IMPORT_TYPE.lower() == 'qc'),
+        skyline_threads = SKYLINE_THREAD_COUNT
+    output:
+        skyline_doc = f'{SKYLINE_OUT_DIR}/centroided_analysis.sky',
+        report_file = f'{SKYLINE_OUT_DIR}/centroided_report.csv'
+    script: 'scripts/skyline.py'
+
+rule skyline_tof_profile_analysis:
+    input:
+        transition_list = rules.prepare_transition_list.output,
+        mzml_files = rules.all.output.mzml_files
+    params:
+        input_dir = MZML_OUT_DIR,
+        is_centroided = False,
+        qc_only = (SKYLINE_IMPORT_TYPE.lower() == 'qc'),
+        skyline_threads = SKYLINE_THREAD_COUNT
+    output:
+        skyline_doc = f'{SKYLINE_OUT_DIR}/tof_profile_analysis.sky',
+        report_file = f'{SKYLINE_OUT_DIR}/tof_profile_report.csv'
+    script: 'scripts/skyline.py
