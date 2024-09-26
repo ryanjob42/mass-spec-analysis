@@ -4,6 +4,9 @@
 #   metadata-file
 #   mzmine-batch-file
 #   mzmine-spectral-libraries-import
+#   mzmine-analyze-*-samples
+#   skyline-process-*
+#   skyline-analyze-*-samples
 
 #############################################
 # Input Data Settings
@@ -36,18 +39,20 @@ msconvert-output-directory: msconvert-out
 # The path to the mzMine batch file to use.
 mzmine-batch-file: batch.xml
 
-# The mzML files to analyze.
-# The files will come from the MSConvert output directory and will
-# override the mzML files selected in the data import step of the
-# batch file. Note: don't delete that step, as it may cause issues.
-#
-# If you want to use all of the mzML files, use the following:
-# mzmine-files-to-analyze: All
-#
-# If you only want to use the pool QC and blanks (i.e., exclude the
-# experimental samples), use the following:
-# mzmine-files-to-analyze: QC
-mzmine-files-to-analyze: All
+# Whether or not to have mzMine analyze the experimental samples.
+# Any sample which is neither a blank nor a QC sample is considered experimental.
+# Use "True" to include them, or "False" to exclude them.
+mzmine-analyze-experimental-samples: True
+
+# Whether or not to have mzMine analyze the QC samples.
+# Any sample with "QC" in the name is considered a QC sample.
+# Use "True" to include them, or "False" to exclude them.
+mzmine-analyze-qc-samples: True
+
+# Whether or not to have mzMine analyze the blank samples.
+# Any sample with "blank" in the name is considered a blank sample.
+# Use "True" to include them, or "False" to exclude them.
+mzmine-analyze-blank-samples: True
 
 # The path to the directory where spectral libraries are stored.
 # If you're not using any, this will be ignored.
@@ -98,12 +103,20 @@ skyline-process-raw-data: False
 # The ".mzML" files to analyze will come from the "msconvert-output-directory" setting.
 skyline-process-mzml-files: False
 
-# Indicates which types of files Skyline should analyze.
-#
-# If you want to use all of the files files, use the following:
-# skyline-files-to-analyze: All
-#
-# If you only want to use the pool QC and blanks (i.e., exclude the
-# experimental samples), use the following:
-# skyline-files-to-analyze: QC
-skyline-files-to-analyze: All
+# Whether or not to have Skyline analyze the experimental samples.
+# Any sample which is neither a blank nor a QC sample is considered experimental.
+# Use "True" to include them, "False" to exclude them,
+# or "CopyMZMine" to copy the similar setting from the mzMine section.
+skyline-analyze-experimental-samples: True
+
+# Whether or not to have Skyline analyze the QC samples.
+# Any sample with "QC" in the name is considered a QC sample.
+# Use "True" to include them, "False" to exclude them,
+# or "CopyMZMine" to copy the similar setting from the mzMine section.
+skyline-analyze-qc-samples: True
+
+# Whether or not to have Skyline analyze the blank samples.
+# Any sample with "blank" in the name is considered a blank sample.
+# Use "True" to include them, "False" to exclude them,
+# or "CopyMZMine" to copy the similar setting from the mzMine section.
+skyline-analyze-blank-samples: True

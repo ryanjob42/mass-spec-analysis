@@ -10,23 +10,9 @@ import os.path
 # changes if the names of the configurations change.
 configfile: 'config.yaml'
 
+# Input Data Settings
 METADATA_FILE = config['metadata-file']
 RAW_DATA_DIR = config['raw-data-directory']
-MZML_OUT_DIR = config['msconvert-output-directory']
-BATCH_FILE = config['mzmine-batch-file']
-MZMINE_IMPORT_TYPE = config['mzmine-files-to-analyze']
-SPECTRAL_LIBS_DIR = config['mzmine-spectral-libraries-directory']
-SPECTRAL_LIBS_LIST = config['mzmine-spectral-libraries-import']
-MZMINE_OUT_DIR = config['mzmine-output-directory']
-SKYLINE_OUT_DIR = config['skyline-output-directory']
-SKYLINE_THREAD_COUNT = config['skyline-thread-count']
-SKYLINE_PROCESS_RAW = config['skyline-process-raw-data']
-SKYLINE_PROCESS_MZML = config['skyline-process-mzml-files']
-SKYLINE_IMPORT_TYPE = config['skyline-files-to-analyze']
-
-# We only want the mzMine rules to require a spectral libraries list file
-# if the user specified that they want spectral libraries.
-USE_SPECTRAL_LIBS = str(SPECTRAL_LIBS_LIST).lower() != 'none'
 
 # Make sure the raw data directory exists and has at least one ".d" file.
 # This prevents issues in the event that none are found.
@@ -34,6 +20,42 @@ if not glob.glob(os.path.join(RAW_DATA_DIR, '*.d')):
     print(f'No raw data was found in the raw data folder: {RAW_DATA_DIR}')
     print('Please double check you uploaded them and that the configuration file is correct.')
     exit(1)
+
+# MSConvert Settings
+MZML_OUT_DIR = config['msconvert-output-directory']
+
+# mzMine Settings
+BATCH_FILE = config['mzmine-batch-file']
+MZMINE_ANALYZE_EXPERIMENTAL = config['mzmine-analyze-experimental-samples']
+MZMINE_ANALYZE_QC = config['mzmine-analyze-qc-samples']
+MZMINE_ANALYZE_BLANKS = config['mzmine-analyze-blank-samples']
+SPECTRAL_LIBS_DIR = config['mzmine-spectral-libraries-directory']
+SPECTRAL_LIBS_LIST = config['mzmine-spectral-libraries-import']
+MZMINE_OUT_DIR = config['mzmine-output-directory']
+
+# We only want the mzMine rules to require a spectral libraries list file
+# if the user specified that they want spectral libraries.
+USE_SPECTRAL_LIBS = str(SPECTRAL_LIBS_LIST).lower() != 'none'
+
+# Skyline Settings
+SKYLINE_OUT_DIR = config['skyline-output-directory']
+SKYLINE_THREAD_COUNT = config['skyline-thread-count']
+SKYLINE_PROCESS_RAW = config['skyline-process-raw-data']
+SKYLINE_PROCESS_MZML = config['skyline-process-mzml-files']
+SKYLINE_ANALYZE_EXPERIMENTAL = config['skyline-analyze-experimental-samples']
+SKYLINE_ANALYZE_QC = config['skyline-analyze-qc-samples']
+SKYLINE_ANALYZE_BLANKS = config['skyline-analyze-blank-samples']
+
+# The Skyline settings for which sample types to analyze
+# can either be "True", "False", or "CopyMZMine".
+# We need to handle that last case upfront so everywhere
+# these settings are used just see "True" or "False".
+if SKYLINE_ANALYZE_EXPERIMENTAL.lower() == "copymzmine":
+    SKYLINE_ANALYZE_EXPERIMENTAL = MZMINE_ANALYZE_EXPERIMENTAL
+if SKYLINE_ANALYZE_QC.lower() == "copymzmine":
+    SKYLINE_ANALYZE_QC = MZMINE_ANALYZE_QC
+if SKYLINE_ANALYZE_BLANKS.lower() == "copymzmine":
+    SKYLINE_ANALYZE_BLANKS = MZMINE_ANALYZE_BLANKS
 
 
 ##############################################
@@ -87,7 +109,9 @@ rule prepare_mzmine_inputs:
         mzml_files = rules.all.input.mzml_files,
         spectral_libs_dir = branch(USE_SPECTRAL_LIBS, SPECTRAL_LIBS_DIR)
     params:
-        mzml_import_type = MZMINE_IMPORT_TYPE,
+        analyze_experimental = MZMINE_ANALYZE_EXPERIMENTAL,
+        analyze_qc = MZMINE_ANALYZE_QC,
+        analyze_blanks = MZMINE_ANALYZE_BLANKS,
         spectral_libs_list = SPECTRAL_LIBS_LIST
     output:
         mzml_list = temp('mzmine_mzml_list.txt'),
@@ -122,7 +146,9 @@ rule skyline_centroided_analysis:
     params:
         input_dir = MZML_OUT_DIR,
         is_centroided = True,
-        qc_only = (SKYLINE_IMPORT_TYPE.lower() == 'qc'),
+        analyze_experimental = SKYLINE_ANALYZE_EXPERIMENTAL,
+        analyze_qc = SKYLINE_ANALYZE_QC,
+        analyze_blanks = SKYLINE_ANALYZE_BLANKS,
         skyline_threads = SKYLINE_THREAD_COUNT
     output:
         skyline_doc = f'{SKYLINE_OUT_DIR}/centroided_analysis.sky',
@@ -136,7 +162,9 @@ rule skyline_tof_profile_analysis:
     params:
         input_dir = RAW_DATA_DIR,
         is_centroided = False,
-        qc_only = (SKYLINE_IMPORT_TYPE.lower() == 'qc'),
+        analyze_experimental = SKYLINE_ANALYZE_EXPERIMENTAL,
+        analyze_qc = SKYLINE_ANALYZE_QC,
+        analyze_blanks = SKYLINE_ANALYZE_BLANKS,
         skyline_threads = SKYLINE_THREAD_COUNT
     output:
         skyline_doc = f'{SKYLINE_OUT_DIR}/tof_profile_analysis.sky',

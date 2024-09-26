@@ -102,10 +102,25 @@ def run_mzmine(batch_file: str, thread_count: Union[int, str], output_dir: str, 
         # If mzMine returns an error code, the "check=True" argument here
         # will cause this script to throw an exception, letting Snakemake
         # know that it failed.
-        _ = subprocess.run(command, check=True)
+        try:
+            _ = subprocess.run(command, check=True)
+        except:
+            # If the user's mzMine batch file contained a blank subtraction step,
+            # but no blank files were matched, mzMine will fail, but won't print
+            # a message to the user indicating why. While we can't detect when
+            # this happens, we can detect if any kind of error occurred,
+            # then let the user know that this specific type of error is a possibility.
+            # Re-raise the exception though, that way we report the failure to Snakemake.
+            logging.error(
+                '[mass-spec-analysis pipeline ERROR]: mzMine has failed. '
+                'Please check the log file above this point to see if mzMine indicates why. '
+                'If there is no indication as to what went wrong, one of the likely issues is that '
+                'the blank subtraction step did not match any blank files. '
+                'This could be because no blanks were provided, or the file name pattern is wrong.')
+            raise
 
     # Sometimes, mzMine fails but doesn't return an error code.
-    # To work around this, we'll check that the output directory,
+    # To work around this, we'll check the output directory,
     # and if it's empty, let the user know and return an error code.
     if not os.listdir(output_dir):
         logging.error('mzMine did not produce any outputs, which is probably an error.')
