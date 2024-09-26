@@ -49,13 +49,17 @@ def direct_main() -> None:
     run_skyline(
         args.transition_list,
         args.input_dir,
-        args.is_centroided,
-        args.analyze_experimental,
-        args.analyze_qc,
-        args.analyze_blanks,
+        as_boolean(args.is_centroided),
+        as_boolean(args.analyze_experimental),
+        as_boolean(args.analyze_qc),
+        as_boolean(args.analyze_blanks),
         args.thread_count,
         args.doc_path,
         args.report_path)
+
+def as_boolean(value: Union[str, bool]) -> bool:
+    '''Converts a string containing a boolean to an actual boolean.'''
+    return str(value).lower() == 'true'
 
 def snakemake_main() -> None:
     '''Runs Skyline from data provided by Snakemake.
@@ -157,6 +161,7 @@ def build_skyline_command(
     # To control which types of files to import into Skyline, we need a "regular expression"
     # which will be compared against the input files to determine which to include.
     file_name_pattern = build_file_pattern(analyze_experimental, analyze_qc, analyze_blanks)
+    logging.debug('File name pattern: %s', file_name_pattern)
 
     # Start building the command and adding the options we need.
     # These are all the options which are used no matter what type of analysis is performed.
@@ -187,7 +192,7 @@ def build_skyline_command(
         # Import the transition list and desired input files.
         f'--import-transition-list={transition_list}',
         f'--import-all={input_dir}',
-        f'--import-filename-pattern={file_name_pattern}'
+        f'--import-filename-pattern={file_name_pattern}',
         
         # Use the desired number of threads for importing data.
         # Note: as of September 2024, using multiple processes from the Singularity

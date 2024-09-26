@@ -50,11 +50,11 @@ SKYLINE_ANALYZE_BLANKS = config['skyline-analyze-blank-samples']
 # can either be "True", "False", or "CopyMZMine".
 # We need to handle that last case upfront so everywhere
 # these settings are used just see "True" or "False".
-if SKYLINE_ANALYZE_EXPERIMENTAL.lower() == "copymzmine":
+if str(SKYLINE_ANALYZE_EXPERIMENTAL).lower() == "copymzmine":
     SKYLINE_ANALYZE_EXPERIMENTAL = MZMINE_ANALYZE_EXPERIMENTAL
-if SKYLINE_ANALYZE_QC.lower() == "copymzmine":
+if str(SKYLINE_ANALYZE_QC).lower() == "copymzmine":
     SKYLINE_ANALYZE_QC = MZMINE_ANALYZE_QC
-if SKYLINE_ANALYZE_BLANKS.lower() == "copymzmine":
+if str(SKYLINE_ANALYZE_BLANKS).lower() == "copymzmine":
     SKYLINE_ANALYZE_BLANKS = MZMINE_ANALYZE_BLANKS
 
 
