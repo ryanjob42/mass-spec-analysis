@@ -17,13 +17,13 @@ from argparse import ArgumentParser
 
 def direct_main() -> None:
     '''Builds the transition list from data provided via command-line arguments.
-    The first argument is the path to the "quant_full.csv" file produced by mzMine.
+    The first argument is the path to the file to build the transition list from.
     The second argument is the path to output the transition list CSV file to.
     '''
     parser = ArgumentParser(
         prog='Transition List Builder',
         description='Builds a transition list CSV file from the "quant_full.csv" output of mzMine.')
-    parser.add_argument('input_path', help='The path to the "quant_full.csv" file produced by mzMine.')
+    parser.add_argument('input_path', help='The path to the file to build the transition list from.')
     parser.add_argument('output_path', help='The path to output the transition list CSV file to.')
 
     args = parser.parse_args()
@@ -34,32 +34,32 @@ def snakemake_main() -> None:
     Assumes there is a single input, which is the path to mzMine's output directory.
     Assumes there is a single output, which is the path for the transition list CSV file.'''
     # As input, this Snakemake rule takes the entire folder of data
-    # that mzMine produced. However, we only want the CSV file that
-    # contains the text "quant_full", as that's the correct one
-    # to build the transition list from.
-    quant_full_path = find_quant_full_file(snakemake.input[0])
+    # that mzMine produced. However, we want a specific file to
+    # create the transition list from, as specified by the user.
+    quant_full_path = find_transition_list_input_file(snakemake.input[0], snakemake.params.transition_input_glob)
     build_transition_list(quant_full_path, snakemake.output[0])
 
-def find_quant_full_file(mzmine_out_dir: str) -> str:
+def find_transition_list_input_file(mzmine_out_dir: str, transition_input_glob: str) -> str:
     '''Tries to find the correct "quant_full.csv" file within mzMine's output directory.
     If no such file is found, or if multiple are found, a message will be printed for the user
     and this script will immediately exit.
 
     @param mzmine_out_dir The path to mzMine's output directory.
-    @returns The path to the "quant_full.csv" file.
+    @param transition_input_glob The glob string to use for finding the specific file to build the transition list from.
+    @returns The path to the file to build the transition list from.
     '''
 
     # Use "glob" to find all CSV files that contain the text "quant_full" in their name.
     # This returns a list of all matching files.
-    found_files = glob.glob('*quant_full*.csv', root_dir=mzmine_out_dir)
+    found_files = glob.glob(transition_input_glob, root_dir=mzmine_out_dir)
 
     # We expect exactly one file to match. If no files match, or if multiple match,
     # let the user know and exit.
     if len(found_files) < 1:
-        print('Did not find the "quant_full.csv" file within the mzMine output directory!')
+        print('Did not find the source file to build the transition list from within the mzMine output directory.')
         exit(1)
     if len(found_files) > 1:
-        print('Multiple "quant_full.csv" files were found in the mzMine output directory, and it is unclear which to use!')
+        print('Multiple files were found in the mzMine output directory which match the transition list source file, and it is unclear which to use.')
         exit(1)
 
     # Return the path to that file by merging the mzMine output directory
@@ -76,7 +76,7 @@ def build_transition_list(input_path: str, output_path: str) -> None:
     3. "Precursor Charge": All values in this column are assumed to be "1".
     4. "Molecule List Name": This column is present, but empty.
 
-    @param input_path The path to the "quant_full.csv" file produced by mzMine.
+    @param input_path The path to the file to build the transition list from.
     @param output_path The path to output the transition list to.
     '''
     logging.debug('mzMine "quant_full.csv" file path: %s', input_path)

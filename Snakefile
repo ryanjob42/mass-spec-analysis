@@ -38,6 +38,7 @@ MZMINE_OUT_DIR = config['mzmine-output-directory']
 USE_SPECTRAL_LIBS = str(SPECTRAL_LIBS_LIST).lower() != 'none'
 
 # Skyline Settings
+SKYLINE_TRANSITION_LIST_SRC = config['transition-list-source-file']
 SKYLINE_OUT_DIR = config['skyline-output-directory']
 SKYLINE_THREAD_COUNT = config['skyline-thread-count']
 SKYLINE_PROCESS_RAW = config['skyline-process-raw-data']
@@ -136,6 +137,8 @@ rule run_mzmine:
 
 rule prepare_transition_list:
     input: MZMINE_OUT_DIR
+    params:
+        transition_input_glob = SKYLINE_TRANSITION_LIST_SRC
     output: f'{SKYLINE_OUT_DIR}/transition_list.csv'
     script: 'scripts/prepare_transition_list.py'
 

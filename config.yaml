@@ -81,6 +81,14 @@ mzmine-output-directory: mzmine-out
 # Skyline Settings
 #############################################
 
+# A "glob" search string to use for finding the file to create the
+# transition list from. This will be used to search inside the
+# "mzmine-output-directory".
+# Example: "*quant_full*.csv" finds any file that contains the text
+# "quant_full" and ends with ".csv".
+# See also: https://docs.python.org/3/library/glob.html
+transition-list-source-file: "*quant_full*.csv"
+
 # The directory where Skyline will output all of its results.
 # This will include where the transition list and Skyline document
 # get created.
